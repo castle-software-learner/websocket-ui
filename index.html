@@ -103,7 +103,7 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
             } else {
-                ws = new WebSocket('wss://symbolically-unshovelled-cathy.ngrok-free.dev/ws');
+                ws = new WebSocket('wss://t1000-service.onrender.com/ws');
 
                 ws.onopen = () => {
                     updateStatus(true);
