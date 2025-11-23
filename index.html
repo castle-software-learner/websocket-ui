@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        #messages {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #f0f0f0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test Client</h1>
+    
+    <div id="status" class="disconnected">Disconnected</div>
+    
+    <button id="connectBtn">Connect</button>
+    <button id="offBtn" class="preset-btn" disabled>OFF</button>
+    <button id="leftBtn" class="preset-btn" disabled>FORWARD</button>
+    <button id="rightBtn" class="preset-btn" disabled>BACKWARDS</button>
+    
+    <p><strong>Current Command:</strong> <span id="currentCommand">None</span></p>
+    
+    <h3>Messages:</h3>
+    <div id="messages"></div>
+
+    <script>
+        let ws = null;
+        let lastCommand = null;
+        const statusDiv = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const messagesDiv = document.getElementById('messages');
+        const currentCommandSpan = document.getElementById('currentCommand');
+        const offBtn = document.getElementById('offBtn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+
+        function addMessage(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            msgDiv.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            if (connected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'connected';
+                connectBtn.textContent = 'Disconnect';
+                leftBtn.disabled = false;
+                rightBtn.disabled = false;
+                updateButtonStates();
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'disconnected';
+                connectBtn.textContent = 'Connect';
+                offBtn.disabled = true;
+                leftBtn.disabled = true;
+                rightBtn.disabled = true;
+            }
+        }
+
+        connectBtn.addEventListener('click', () => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            } else {
+                ws = new WebSocket('wss://symbolically-unshovelled-cathy.ngrok-free.dev/ws');
+
+                ws.onopen = () => {
+                    updateStatus(true);
+                    addMessage('Connected to server');
+                };
+
+                // ws.onmessage = (event) => {
+                //     addMessage('Received: ' + event.data);
+                // };
+
+                ws.onclose = () => {
+                    updateStatus(false);
+                    messagesDiv.innerHTML = '';
+                    addMessage('Disconnected from server');
+                    lastCommand = null;
+                    currentCommandSpan.textContent = 'None';
+                };
+
+                ws.onerror = (error) => {
+                    addMessage('Error: ' + error.message);
+                };
+            }
+        });
+
+        function updateButtonStates() {
+            offBtn.disabled = !(lastCommand === 'forward' || lastCommand === 'backwards');
+            leftBtn.disabled = lastCommand === 'forward';
+            rightBtn.disabled = lastCommand === 'backwards';
+        }
+
+        function sendPresetMessage(message) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                if (lastCommand === message) {
+                    return;
+                }
+                ws.send(message);
+                lastCommand = message;
+                currentCommandSpan.textContent = message.toUpperCase();
+                addMessage('Sent: ' + message);
+                updateButtonStates();
+            }
+        }
+
+        offBtn.addEventListener('click', () => sendPresetMessage('off'));
+        leftBtn.addEventListener('click', () => sendPresetMessage('forward'));
+        rightBtn.addEventListener('click', () => sendPresetMessage('backwards'));
+    </script>
+</body>
+</html>
