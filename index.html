@@ -135,6 +135,89 @@
             text-shadow: 0 0 5px #00ff88;
         }
         
+        .timer-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .timer-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .timer-display {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #ff9500;
+            border: 2px solid #ff9500;
+            background: rgba(255, 149, 0, 0.1);
+            text-shadow: 0 0 10px #ff9500;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 149, 0, 0.3);
+            font-variant-numeric: tabular-nums;
+            min-width: 80px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .timer-display.hidden {
+            visibility: hidden;
+        }
+        
+        .direction-indicator {
+            font-size: 1.5em;
+            animation: slideDirection 1s ease-in-out infinite;
+        }
+        
+        .direction-indicator.forward {
+            animation: slideRight 1s ease-in-out infinite;
+        }
+        
+        .direction-indicator.backwards {
+            animation: slideLeft 1s ease-in-out infinite;
+        }
+        
+        @keyframes slideRight {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(10px); opacity: 0.6; }
+        }
+        
+        @keyframes slideLeft {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(-10px); opacity: 0.6; }
+        }
+        
+        input[type="number"] {
+            width: 80px;
+            padding: 8px 12px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ccff;
+            color: #00ccff;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus {
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.5), inset 0 0 10px rgba(0, 204, 255, 0.2);
+            border-color: #00ccff;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+        
         h3 {
             color: #00ccff;
             text-transform: uppercase;
@@ -142,6 +225,28 @@
             margin-top: 30px;
             border-left: 4px solid #00ccff;
             padding-left: 10px;
+            position: relative;
+        }
+        
+        .messages-direction {
+            position: absolute;
+            top: -11px;
+            left: 185px;
+            font-size: 1.8em;
+            color: #00ccff;
+            text-shadow: 0 0 10px #00ccff;
+        }
+        
+        .messages-direction.forward {
+            animation: slideRight 1s ease-in-out infinite;
+        }
+        
+        .messages-direction.backwards {
+            animation: slideLeft 1s ease-in-out infinite;
+        }
+        
+        .messages-direction.hidden {
+            display: none;
         }
         
         #messages {
@@ -180,6 +285,14 @@
             animation: slideIn 0.3s ease;
         }
         
+        .message.warning {
+            background: linear-gradient(145deg, rgba(255, 68, 0, 0.15), rgba(255, 68, 0, 0.08));
+            border-left: 3px solid #ff4400;
+            color: #ff4400;
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(255, 68, 0, 0.5);
+        }
+        
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -204,26 +317,82 @@
     
     <p><strong>Current Command:</strong> <span id="currentCommand">None</span></p>
     
-    <h3>Messages:</h3>
+    <div class="timer-container">
+        <div class="timer-input">
+            <input type="number" id="timerInput" min="1" max="999" value="5" />
+            <span style="color: #00ccff; font-weight: 700;">seconds</span>
+        </div>
+        <div class="timer-display hidden" id="timerDisplay">
+            <span id="timerText">0s</span>
+        </div>
+    </div>
+    
+    <h3>Messages: <span class="messages-direction hidden" id="messagesDirection"></span></h3>
     <div id="messages"></div>
 
     <script>
         let ws = null;
         let lastCommand = null;
+        let countdownInterval = null;
+        let countdownEndTime = null;
+        let isCommandActive = false;
+        let currentDirection = null;
         const statusDiv = document.getElementById('status');
         const connectBtn = document.getElementById('connectBtn');
         const messagesDiv = document.getElementById('messages');
+        const messagesDirection = document.getElementById('messagesDirection');
         const currentCommandSpan = document.getElementById('currentCommand');
+        const timerInput = document.getElementById('timerInput');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerText = document.getElementById('timerText');
+        const directionIndicator = document.getElementById('directionIndicator');
         const offBtn = document.getElementById('offBtn');
         const leftBtn = document.getElementById('leftBtn');
         const rightBtn = document.getElementById('rightBtn');
 
-        function addMessage(text) {
+        function addMessage(text, type = 'normal') {
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
+            msgDiv.className = type === 'warning' ? 'message warning' : 'message';
             msgDiv.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
             messagesDiv.appendChild(msgDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function startCountdown(seconds, direction = null) {
+            stopCountdown();
+            isCommandActive = true;
+            currentDirection = direction || lastCommand;
+            countdownEndTime = Date.now() + (seconds * 1000);
+            timerDisplay.classList.remove('hidden');
+            
+            // Set direction indicator in messages header
+            if (currentDirection === 'forward') {
+                messagesDirection.textContent = '→→→';
+                messagesDirection.className = 'messages-direction forward';
+            } else if (currentDirection === 'backwards') {
+                messagesDirection.textContent = '←←←';
+                messagesDirection.className = 'messages-direction backwards';
+            }
+            
+            countdownInterval = setInterval(() => {
+                const remaining = Math.max(0, Math.ceil((countdownEndTime - Date.now()) / 1000));
+                timerText.textContent = `${remaining}s to stop`;
+                
+                if (remaining <= 0) {
+                    stopCountdown();
+                }
+            }, 100);
+        }
+        
+        function stopCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                countdownEndTime = null;
+                isCommandActive = false;
+                timerDisplay.classList.add('hidden');
+                messagesDirection.className = 'messages-direction hidden';
+            }
         }
 
         function updateStatus(connected) {
@@ -248,19 +417,65 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
             } else {
-                ws = new WebSocket('wss://t1000-service.onrender.com/ws');
+                // ws = new WebSocket('wss://t1000-service.onrender.com/ws');
+                ws = new WebSocket('ws://10.0.0.12:5500/ws');
 
                 ws.onopen = () => {
                     updateStatus(true);
                     addMessage('Connected to server');
                 };
 
-                // ws.onmessage = (event) => {
-                //     addMessage('Received: ' + event.data);
-                // };
+                ws.onmessage = (event) => {
+                    let command = event.data;
+                    if (command === '') return;
+                    
+                    // Check if it's a JSON object with timer
+                    let timerValue = null;
+                    try {
+                        const jsonData = JSON.parse(command);
+                        if (jsonData.timer !== undefined) {
+                            timerValue = parseInt(jsonData.timer);
+                            if (timerValue > 0) {
+                                startCountdown(timerValue, lastCommand);
+                            }
+                            return;
+                        }
+                    } catch (e) {
+                        // Not JSON, continue with regular parsing
+                    }
+                    
+                    command = command.toLowerCase();
+                    
+                    // Parse command and timer if present (e.g., "forward:10")
+                    const parts = command.split(':');
+                    const action = parts[0];
+                    const seconds = parts[1] ? parseInt(parts[1]) : null;
+                    
+                    // Update UI based on received command
+                    if (action === 'forward' || action === 'backwards') {
+                        const arrow = action === 'forward' ? '→' : '←';
+                        const direction = action === 'forward' ? 'forward' : 'backwards';
+                        if (seconds) {
+                            //addMessage(`${arrow} Engine moving ${direction} for ${seconds}s`);
+                            startCountdown(seconds, action);
+                        } else {
+                            addMessage(`Engine moving ${direction}`);
+                        }
+                        lastCommand = action;
+                        currentCommandSpan.textContent = action.toUpperCase();
+                        updateButtonStates();
+                    } else if (action === 'off') {
+                        addMessage('Stopping engine', 'warning');
+                        lastCommand = null;
+                        currentCommandSpan.textContent = 'None';
+                        stopCountdown();
+                        updateButtonStates();
+                    }
+                };
 
                 ws.onclose = () => {
                     updateStatus(false);
+                    stopCountdown();
                     messagesDiv.innerHTML = '';
                     addMessage('Disconnected from server');
                     lastCommand = null;
@@ -281,13 +496,34 @@
 
         function sendPresetMessage(message) {
             if (ws && ws.readyState === WebSocket.OPEN) {
+                // Prevent new commands if a timer is active (except OFF)
+                if (isCommandActive && message !== 'off') {
+                    addMessage('Command in progress, please wait...', 'warning');
+                    return;
+                }
+                
                 if (lastCommand === message) {
                     return;
                 }
-                ws.send(message);
+                
+                let commandToSend = message;
+                
+                // Append timer for movement commands
+                if (message === 'forward' || message === 'backwards') {
+                    const seconds = parseInt(timerInput.value);
+                    commandToSend = `${message}:${seconds}`;
+                    const arrow = message === 'forward' ? '\u2192' : '\u2190';
+                    const direction = message === 'forward' ? 'forward' : 'backwards';
+                    //addMessage(`${arrow} Engine moving ${direction} for ${seconds}s`);
+                    startCountdown(seconds, message);
+                } else if (message !== 'off') {
+                    addMessage(`Sent: ${message}`);
+                    stopCountdown();
+                }
+                
+                ws.send(commandToSend);
                 lastCommand = message;
                 currentCommandSpan.textContent = message.toUpperCase();
-                addMessage('Sent: ' + message);
                 updateButtonStates();
             }
         }
