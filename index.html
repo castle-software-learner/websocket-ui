@@ -417,8 +417,8 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
             } else {
-                // ws = new WebSocket('wss://t1000-service.onrender.com/ws');
-                ws = new WebSocket('ws://10.0.0.12:5500/ws');
+                ws = new WebSocket('wss://t1000-service.onrender.com/ws');
+                // ws = new WebSocket('ws://10.0.0.12:5500/ws');
 
                 ws.onopen = () => {
                     updateStatus(true);
