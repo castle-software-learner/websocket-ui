@@ -417,8 +417,8 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
             } else {
-                 ws = new WebSocket('wss://t1000-service.onrender.com/ws');
-                //ws = new WebSocket('ws://10.0.0.12:5500/ws');
+                // ws = new WebSocket('wss://t1000-service.onrender.com/ws');
+                ws = new WebSocket('ws://10.0.0.12:5500/ws');
 
                 ws.onopen = () => {
                     updateStatus(true);
@@ -438,12 +438,13 @@
                             if (timerValue > 0) {
                                 startCountdown(timerValue, lastCommand);
                             }
+                            lastCommand = 'forward'
+                            updateButtonStates();
                             return;
                         }
                     } catch (e) {
                         // Not JSON, continue with regular parsing
                     }
-                    
                     command = command.toLowerCase();
                     
                     // Parse command and timer if present (e.g., "forward:10")
