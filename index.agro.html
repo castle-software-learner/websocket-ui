@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSem - Sistema de Monitoreo Agrícola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        /* Header Section */
+        .header {
+            background: white;
+            text-align: center;
+        }
+        
+        .logo-icon {
+            width: 200px;
+            height: 180px;
+        }
+        
+        .location {
+            color: #666;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 10px 24px;
+        }
+        
+        /* Temperature Card */
+        .temp-card {
+            background: #f5f5f598;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .temp-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .temp-value {
+            font-size: 72px;
+            font-weight: 700;
+            color: #2d5016;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        
+        /* Humidity Card */
+        .humidity-card {
+            background: #f5f5f598;
+            border-radius: 12px;
+            padding: 32px 24px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .humidity-icon-container {
+            width: 64px;
+            height: 64px;
+            background: #2d5016;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .humidity-icon {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+        
+        .humidity-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2d5016;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .humidity-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .humidity-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #d0d0d0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .humidity-bar-fill {
+            height: 100%;
+            background: #2d5016;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        /* Irrigation Card */
+        .irrigation-card {
+            background: url('fieldBg.png');
+            filter: brightness(0.9);
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .irrigation-content {
+            flex-grow: 1;
+        }
+        
+        .irrigation-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .irrigation-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            opacity: 0.95;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .activate-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            border: none;
+            color: #2d5016;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        
+        .activate-btn:hover {
+            background: #f8f8f8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .activate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        
+        .activate-btn:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Timer Status Display */
+        .timer-status {
+            background: #0000003a;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            height: 30px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 0px;
+            right: 20px;
+        }
+        .row {
+            flex-direction: row;
+            display: flex;
+            justify-content: space-between
+        }
+        .timer-status.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .timer-status-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .timer-icon {
+            width: 24px;
+            height: 24px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+        
+        .timer-countdown {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            min-width: 45px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Logo -->
+        <div class="header">
+            <div>
+                <!-- Plant/Seedling SVG Icon with WiFi signals -->
+                <img src="logo.png" alt="Logo" class="logo-icon">
+                
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content">
+            <div class="location">Hectárea Norte • Zona 3</div>
+            <!-- Temperature Card -->
+            <div class="temp-card">
+                <div class="section-label">
+                    <svg class="temp-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 14.76V3.5C14 2.67 13.33 2 12.5 2C11.67 2 11 2.67 11 3.5V14.76C9.66 15.56 9 17.03 9 18.5C9 20.43 10.57 22 12.5 22C14.43 22 16 20.43 16 18.5C16 17.03 15.34 15.56 14 14.76Z" fill="#666"/>
+                    </svg>
+                    Temperatura Ambiente
+                </div>
+                <div class="temp-value">0°C</div>
+            </div>
+            
+            <!-- Humidity Card -->
+            <div class="humidity-card">
+                <div class="humidity-icon-container">
+                    <svg class="humidity-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2.69L17.66 8.35C20.78 11.47 20.78 16.53 17.66 19.65C14.54 22.77 9.46 22.77 6.34 19.65C3.22 16.53 3.22 11.47 6.34 8.35L12 2.69Z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="humidity-value">0%</div>
+                <div class="humidity-label">Humedad</div>
+                <div class="humidity-bar-bg">
+                    <div class="humidity-bar-fill"></div>
+                </div>
+            </div>
+            
+
+            <!-- Irrigation Schedule Card -->
+            <div class="irrigation-card">
+                <div class="irrigation-content">
+                    <div class="row">
+                        <div class="irrigation-title">Horario de<br>irrigación</div>
+                                <!-- Timer Status Display -->
+                        <div class="timer-status" id="timerStatus">
+                            <div class="timer-status-text">
+                                <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="4" r="1.5" fill="#ffffff"/>
+                                    <path d="M12 12L12 7" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M12 12L15 15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <!-- <span>Sistema de riego activo</span> -->
+                            </div>
+                            <div class="timer-countdown" id="timerCountdown">5s</div>
+                        </div>
+                    </div>
+            
+                    <div class="irrigation-text">
+                        El próximo ciclo de regado automático está programado para las 10:00 PM
+                    </div>
+                </div>
+                <button class="activate-btn" id="activateBtn" onclick="activateIrrigation()">Activar sistema</button>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                setHumidityLevel(65);
+                animateTemperature(30);
+                toggleConnection();
+            }, 500);
+        });
+
+        
+        function setHumidityLevel(level, duration = 1500) {
+            const humidityBarFill = document.querySelector('.humidity-bar-fill');
+            const humidityValue = document.querySelector('.humidity-value');
+            const startTime = performance.now();
+            const startLevel = 0;
+            
+            function updateHumidity(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentLevel = Math.round(startLevel + (level - startLevel) * easedProgress);
+                humidityBarFill.style.width = `${currentLevel}%`;
+                humidityValue.textContent = `${currentLevel}%`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateHumidity);
+                }
+            }
+            
+            requestAnimationFrame(updateHumidity);
+        }
+
+        function animateTemperature(targetTemp, duration = 1500) {
+            const tempValueElement = document.querySelector('.temp-value');
+            const startTime = performance.now();
+            const startTemp = 0;
+            
+            function updateTemp(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentTemp = Math.round(startTemp + (targetTemp - startTemp) * easedProgress);
+                tempValueElement.textContent = `${currentTemp}°C`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateTemp);
+                }
+            }
+            
+            requestAnimationFrame(updateTemp);
+        }
+
+        function activateIrrigation() {
+            sendCommand('forward', 5); // Send forward command with 5 second timer
+        } 
+
+        // WebSocket connection logic
+        let ws = null;
+        let lastCommand = null;
+        let isCommandActive = false;
+        let countdownInterval = null;
+        const timerStatus = document.getElementById('timerStatus');
+        const timerCountdown = document.getElementById('timerCountdown');
+        const activateBtn = document.getElementById('activateBtn');
+
+        function startCountdown(seconds) {
+            stopCountdown();
+            isCommandActive = true;
+            activateBtn.disabled = true;
+            timerStatus.classList.add('active');
+            
+            let remaining = seconds;
+            timerCountdown.textContent = `${remaining}s`;
+            
+            countdownInterval = setInterval(() => {
+                remaining--;
+                timerCountdown.textContent = `${remaining}s`;
+                
+                if (remaining <= 0) {
+                    stopCountdown();
+                }
+            }, 1000);
+        }
+        
+        function stopCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            isCommandActive = false;
+            activateBtn.disabled = false;
+            timerStatus.classList.remove('active');
+        }
+
+        function toggleConnection() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            } else {
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                ws = new WebSocket(isDev ? 'ws://10.0.0.12:5500/ws' : 'wss://t1000-service.onrender.com/ws');
+
+                ws.onopen = () => {
+                    console.log('Connected to server');
+                };
+
+                ws.onmessage = (event) => {
+                    let command = event.data;
+                    if (command === '') return;
+                    
+                    // Check if it's a JSON object with timer
+                    try {
+                        const jsonData = JSON.parse(command);
+                        if (jsonData.timer !== undefined) {
+                            const timerValue = parseInt(jsonData.timer);
+                            if (timerValue > 0) {
+                                if (!isCommandActive)
+                                    startCountdown(timerValue);
+                                timerCountdown.textContent = `${timerValue}s`;
+                            } else {
+                                stopCountdown();
+                            }
+                            console.log(`Timer update: ${timerValue}s remaining`);
+                            return;
+                        }
+                    } catch (e) {
+                        // Not JSON, continue with regular parsing
+                    }
+                    
+                    command = command.toLowerCase();
+                    
+                    // Parse command and timer if present (e.g., "forward:10")
+                    const parts = command.split(':');
+                    const action = parts[0];
+                    const seconds = parts[1] ? parseInt(parts[1]) : null;
+                    
+                    // Update UI based on received command
+                    if (action === 'forward' || action === 'backwards') {
+                        lastCommand = action;
+                        if (seconds) {
+                            startCountdown(seconds);
+                        }
+                        console.log(`Command: ${action}${seconds ? ' for ' + seconds + 's' : ''}`);
+                    } else if (action === 'off') {
+                        lastCommand = null;
+                        stopCountdown();
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log('Disconnected from server');
+                    lastCommand = null;
+                    isCommandActive = false;
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+            }
+        }
+
+        function sendCommand(command, seconds = 5) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                // Prevent new commands if a timer is active (except OFF)
+                if (isCommandActive && command !== 'off') {
+                    console.log('Command in progress, please wait...');
+                    return;
+                }
+                
+                if (lastCommand === command) {
+                    return;
+                }
+                
+                let commandToSend = command;
+                
+                // Append timer for movement commands
+                if (command === 'forward' || command === 'backwards') {
+                    commandToSend = `${command}:${seconds}`;
+                    startCountdown(seconds);
+                } else if (command === 'off') {
+                    stopCountdown();
+                }
+                
+                ws.send(commandToSend);
+                lastCommand = command;
+                console.log(`Sent: ${commandToSend}`);
+            } else {
+                console.log('Not connected to server');
+            }
+        }
+    </script>
+</body>
+</html>
