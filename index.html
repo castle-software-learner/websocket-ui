@@ -1,419 +1,470 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T1000</title>
+    <title>AgroSem - Sistema de Monitoreo Agrícola</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: 'Orbitron', monospace;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-            color: #00ff88;
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 430px;
+            background: white;
             min-height: 100vh;
         }
         
-        h1 {
+        /* Header Section */
+        .header {
+            background: white;
             text-align: center;
-            font-size: 2.5em;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #00ff88;
-            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 30px #00ff88;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #00ff88;
-            padding-bottom: 15px;
         }
         
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            cursor: pointer;
-            margin: 5px;
-            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
-            border: 2px solid #00ff88;
-            color: #00ff88;
+        .logo-icon {
+            width: 200px;
+            height: 180px;
+        }
+        
+        .location {
+            color: #666;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 10px 24px;
+        }
+        
+        /* Temperature Card */
+        .temp-card {
+            background: #f5f5f598;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-            position: relative;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .temp-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .temp-value {
+            font-size: 72px;
+            font-weight: 700;
+            color: #2d5016;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        
+        /* Humidity Card */
+        .humidity-card {
+            background: #f5f5f598;
+            border-radius: 12px;
+            padding: 32px 24px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .humidity-icon-container {
+            width: 64px;
+            height: 64px;
+            background: #2d5016;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .humidity-icon {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+        
+        .humidity-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2d5016;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .humidity-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .humidity-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #d0d0d0;
+            border-radius: 4px;
             overflow: hidden;
         }
         
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
+        .humidity-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
-            transition: left 0.5s;
+            background: #2d5016;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
         }
         
-        button:hover:not(:disabled)::before {
-            left: 100%;
+        /* Irrigation Card */
+        .irrigation-card {
+            background: url('fieldBg.png');
+            filter: brightness(0.9);
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
-        button:hover:not(:disabled) {
-            background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6), inset 0 0 10px rgba(0, 255, 136, 0.2);
-            transform: translateY(-2px);
+        .irrigation-content {
+            flex-grow: 1;
         }
         
-        button:active:not(:disabled) {
+        .irrigation-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .irrigation-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            opacity: 0.95;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .activate-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            border: none;
+            color: #2d5016;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        
+        .activate-btn:hover {
+            background: #f8f8f8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .activate-btn:active {
             transform: translateY(0);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8), inset 0 0 15px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         
-        button:disabled {
-            border-color: #333;
-            color: #333;
+        .activate-btn:disabled {
+            background: #e0e0e0;
+            color: #999;
             cursor: not-allowed;
-            box-shadow: none;
+            transform: none;
         }
         
-        #status {
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0;
-            text-align: center;
-            font-weight: 700;
-            font-size: 1.2em;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            border: 2px solid;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        /* Timer Status Display */
+        .timer-status {
+            background: #0000003a;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            height: 30px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 0px;
+            right: 20px;
+        }
+        .row {
+            flex-direction: row;
+            display: flex;
+            justify-content: space-between
+        }
+        .timer-status.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
         }
         
-        .connected {
-            background-color: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            border-color: #00ff88;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .timer-status-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .timer-icon {
+            width: 24px;
+            height: 24px;
             animation: pulse 2s infinite;
-            text-shadow: 0 0 10px #00ff88;
-        }
-        
-        .disconnected {
-            background-color: rgba(255, 0, 68, 0.1);
-            color: #ff0044;
-            border-color: #ff0044;
-            text-shadow: 0 0 10px #ff0044;
         }
         
         @keyframes pulse {
             0%, 100% {
-                box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 255, 136, 0.5);
+                opacity: 1;
+                transform: scale(1);
             }
             50% {
-                box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.8);
+                opacity: 0.7;
+                transform: scale(1.1);
             }
         }
         
-        p {
-            color: #00ccff;
-            font-size: 1.1em;
-            letter-spacing: 1px;
-        }
-        
-        #currentCommand {
-            color: #00ff88;
+        .timer-countdown {
+            font-size: 20px;
             font-weight: 700;
-            text-shadow: 0 0 5px #00ff88;
-        }
-        
-        .timer-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            margin: 15px 0;
-        }
-        
-        .timer-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .timer-display {
-            padding: 10px 20px;
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #ff9500;
-            border: 2px solid #ff9500;
-            background: rgba(255, 149, 0, 0.1);
-            text-shadow: 0 0 10px #ff9500;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 149, 0, 0.3);
+            color: #ffffff;
+            min-width: 45px;
+            text-align: right;
             font-variant-numeric: tabular-nums;
-            min-width: 80px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         
-        .timer-display.hidden {
-            visibility: hidden;
-        }
-        
-        .direction-indicator {
-            font-size: 1.5em;
-            animation: slideDirection 1s ease-in-out infinite;
-        }
-        
-        .direction-indicator.forward {
-            animation: slideRight 1s ease-in-out infinite;
-        }
-        
-        .direction-indicator.backwards {
-            animation: slideLeft 1s ease-in-out infinite;
-        }
-        
-        @keyframes slideRight {
-            0%, 100% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(10px); opacity: 0.6; }
-        }
-        
-        @keyframes slideLeft {
-            0%, 100% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(-10px); opacity: 0.6; }
-        }
-        
-        input[type="number"] {
-            width: 80px;
-            padding: 8px 12px;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.1em;
-            font-weight: 700;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid #00ccff;
-            color: #00ccff;
-            text-align: center;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        input[type="number"]:focus {
-            box-shadow: 0 0 15px rgba(0, 204, 255, 0.5), inset 0 0 10px rgba(0, 204, 255, 0.2);
-            border-color: #00ccff;
-        }
-        
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            opacity: 1;
-        }
-        
-        h3 {
-            color: #00ccff;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-top: 30px;
-            border-left: 4px solid #00ccff;
-            padding-left: 10px;
-            position: relative;
-        }
-        
-        .messages-direction {
-            position: absolute;
-            top: -11px;
-            left: 185px;
-            font-size: 1.8em;
-            color: #00ccff;
-            text-shadow: 0 0 10px #00ccff;
-        }
-        
-        .messages-direction.forward {
-            animation: slideRight 1s ease-in-out infinite;
-        }
-        
-        .messages-direction.backwards {
-            animation: slideLeft 1s ease-in-out infinite;
-        }
-        
-        .messages-direction.hidden {
-            display: none;
-        }
-        
-        #messages {
-            margin-top: 20px;
-            padding: 15px;
-            border: 2px solid #00ccff;
-            border-radius: 0;
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: inset 0 0 20px rgba(0, 204, 255, 0.2);
-        }
-        
-        #messages::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        #messages::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        
-        #messages::-webkit-scrollbar-thumb {
-            background: #00ccff;
-            box-shadow: 0 0 10px #00ccff;
-        }
-        
-        .message {
-            padding: 8px 12px;
-            margin: 8px 0;
-            background: linear-gradient(145deg, rgba(0, 204, 255, 0.1), rgba(0, 204, 255, 0.05));
-            border-radius: 0;
-            border-left: 3px solid #00ccff;
-            color: #00ccff;
-            font-size: 0.9em;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .message.warning {
-            background: linear-gradient(145deg, rgba(255, 68, 0, 0.15), rgba(255, 68, 0, 0.08));
-            border-left: 3px solid #ff4400;
-            color: #ff4400;
-            font-weight: 700;
-            text-shadow: 0 0 5px rgba(255, 68, 0, 0.5);
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
     </style>
 </head>
 <body>
-    <h1>T1000 O&M</h1>
-    
-    <div id="status" class="disconnected">Disconnected</div>
-    
-    <button id="connectBtn">Connect</button>
-    <button id="offBtn" class="preset-btn" disabled>OFF</button>
-    <button id="leftBtn" class="preset-btn" disabled>FORWARD</button>
-    <button id="rightBtn" class="preset-btn" disabled>BACKWARDS</button>
-    
-    <p><strong>Current Command:</strong> <span id="currentCommand">None</span></p>
-    
-    <div class="timer-container">
-        <div class="timer-input">
-            <input type="number" id="timerInput" min="1" max="999" value="5" />
-            <span style="color: #00ccff; font-weight: 700;">seconds</span>
+    <div class="container">
+        <!-- Header with Logo -->
+        <div class="header">
+            <div>
+                <!-- Plant/Seedling SVG Icon with WiFi signals -->
+                <img src="logo.png" alt="Logo" class="logo-icon">
+                
+            </div>
         </div>
-        <div class="timer-display hidden" id="timerDisplay">
-            <span id="timerText">0s</span>
+        
+        <!-- Content Area -->
+        <div class="content">
+            <div class="location">Hectárea Norte • Zona 3</div>
+            <!-- Temperature Card -->
+            <div class="temp-card">
+                <div class="section-label">
+                    <svg class="temp-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 14.76V3.5C14 2.67 13.33 2 12.5 2C11.67 2 11 2.67 11 3.5V14.76C9.66 15.56 9 17.03 9 18.5C9 20.43 10.57 22 12.5 22C14.43 22 16 20.43 16 18.5C16 17.03 15.34 15.56 14 14.76Z" fill="#666"/>
+                    </svg>
+                    Temperatura Ambiente
+                </div>
+                <div class="temp-value">0°C</div>
+            </div>
+            
+            <!-- Humidity Card -->
+            <div class="humidity-card">
+                <div class="humidity-icon-container">
+                    <svg class="humidity-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2.69L17.66 8.35C20.78 11.47 20.78 16.53 17.66 19.65C14.54 22.77 9.46 22.77 6.34 19.65C3.22 16.53 3.22 11.47 6.34 8.35L12 2.69Z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="humidity-value">0%</div>
+                <div class="humidity-label">Humedad</div>
+                <div class="humidity-bar-bg">
+                    <div class="humidity-bar-fill"></div>
+                </div>
+            </div>
+            
+
+            <!-- Irrigation Schedule Card -->
+            <div class="irrigation-card">
+                <div class="irrigation-content">
+                    <div class="row">
+                        <div class="irrigation-title">Horario de<br>irrigación</div>
+                                <!-- Timer Status Display -->
+                        <div class="timer-status" id="timerStatus">
+                            <div class="timer-status-text">
+                                <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="4" r="1.5" fill="#ffffff"/>
+                                    <path d="M12 12L12 7" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M12 12L15 15" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <!-- <span>Sistema de riego activo</span> -->
+                            </div>
+                            <div class="timer-countdown" id="timerCountdown">5s</div>
+                        </div>
+                    </div>
+            
+                    <div class="irrigation-text">
+                        El próximo ciclo de regado automático está programado para las 10:00 PM
+                    </div>
+                </div>
+                <button class="activate-btn" id="activateBtn" onclick="activateIrrigation()">Activar sistema</button>
+            </div>
+            
         </div>
     </div>
     
-    <h3>Messages: <span class="messages-direction hidden" id="messagesDirection"></span></h3>
-    <div id="messages"></div>
-
     <script>
-        let ws = null;
-        let lastCommand = null;
-        let countdownInterval = null;
-        let countdownEndTime = null;
-        let isCommandActive = false;
-        let currentDirection = null;
-        const statusDiv = document.getElementById('status');
-        const connectBtn = document.getElementById('connectBtn');
-        const messagesDiv = document.getElementById('messages');
-        const messagesDirection = document.getElementById('messagesDirection');
-        const currentCommandSpan = document.getElementById('currentCommand');
-        const timerInput = document.getElementById('timerInput');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const timerText = document.getElementById('timerText');
-        const directionIndicator = document.getElementById('directionIndicator');
-        const offBtn = document.getElementById('offBtn');
-        const leftBtn = document.getElementById('leftBtn');
-        const rightBtn = document.getElementById('rightBtn');
-
-        function addMessage(text, type = 'normal') {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = type === 'warning' ? 'message warning' : 'message';
-            msgDiv.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
         
-        function startCountdown(seconds, direction = null) {
-            stopCountdown();
-            isCommandActive = true;
-            currentDirection = direction || lastCommand;
-            countdownEndTime = Date.now() + (seconds * 1000);
-            timerDisplay.classList.remove('hidden');
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                setHumidityLevel(65);
+                animateTemperature(30);
+                toggleConnection();
+            }, 500);
+        });
+
+        
+        function setHumidityLevel(level, duration = 1500) {
+            const humidityBarFill = document.querySelector('.humidity-bar-fill');
+            const humidityValue = document.querySelector('.humidity-value');
+            const startTime = performance.now();
+            const startLevel = 0;
             
-            // Set direction indicator in messages header
-            if (currentDirection === 'forward') {
-                messagesDirection.textContent = '→→→';
-                messagesDirection.className = 'messages-direction forward';
-            } else if (currentDirection === 'backwards') {
-                messagesDirection.textContent = '←←←';
-                messagesDirection.className = 'messages-direction backwards';
+            function updateHumidity(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentLevel = Math.round(startLevel + (level - startLevel) * easedProgress);
+                humidityBarFill.style.width = `${currentLevel}%`;
+                humidityValue.textContent = `${currentLevel}%`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateHumidity);
+                }
             }
             
+            requestAnimationFrame(updateHumidity);
+        }
+
+        function animateTemperature(targetTemp, duration = 1500) {
+            const tempValueElement = document.querySelector('.temp-value');
+            const startTime = performance.now();
+            const startTemp = 0;
+            
+            function updateTemp(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentTemp = Math.round(startTemp + (targetTemp - startTemp) * easedProgress);
+                tempValueElement.textContent = `${currentTemp}°C`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateTemp);
+                }
+            }
+            
+            requestAnimationFrame(updateTemp);
+        }
+
+        function activateIrrigation() {
+            sendCommand('forward', 5); // Send forward command with 5 second timer
+        } 
+
+        // WebSocket connection logic
+        let ws = null;
+        let lastCommand = null;
+        let isCommandActive = false;
+        let countdownInterval = null;
+        const timerStatus = document.getElementById('timerStatus');
+        const timerCountdown = document.getElementById('timerCountdown');
+        const activateBtn = document.getElementById('activateBtn');
+
+        function startCountdown(seconds) {
+            stopCountdown();
+            isCommandActive = true;
+            activateBtn.disabled = true;
+            timerStatus.classList.add('active');
+            
+            let remaining = seconds;
+            timerCountdown.textContent = `${remaining}s`;
+            
             countdownInterval = setInterval(() => {
-                const remaining = Math.max(0, Math.ceil((countdownEndTime - Date.now()) / 1000));
-                timerText.textContent = `${remaining}s to stop`;
+                remaining--;
+                timerCountdown.textContent = `${remaining}s`;
                 
                 if (remaining <= 0) {
                     stopCountdown();
                 }
-            }, 100);
+            }, 1000);
         }
         
         function stopCountdown() {
             if (countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
-                countdownEndTime = null;
-                isCommandActive = false;
-                timerDisplay.classList.add('hidden');
-                messagesDirection.className = 'messages-direction hidden';
             }
+            isCommandActive = false;
+            activateBtn.disabled = false;
+            timerStatus.classList.remove('active');
         }
 
-        function updateStatus(connected) {
-            if (connected) {
-                statusDiv.textContent = 'Connected';
-                statusDiv.className = 'connected';
-                connectBtn.textContent = 'Disconnect';
-                leftBtn.disabled = false;
-                rightBtn.disabled = false;
-                updateButtonStates();
-            } else {
-                statusDiv.textContent = 'Disconnected';
-                statusDiv.className = 'disconnected';
-                connectBtn.textContent = 'Connect';
-                offBtn.disabled = true;
-                leftBtn.disabled = true;
-                rightBtn.disabled = true;
-            }
-        }
-
-        connectBtn.addEventListener('click', () => {
+        function toggleConnection() {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
             } else {
@@ -421,8 +472,7 @@
                 ws = new WebSocket(isDev ? 'ws://10.0.0.12:5500/ws' : 'wss://t1000-service.onrender.com/ws');
 
                 ws.onopen = () => {
-                    updateStatus(true);
-                    addMessage('Connected to server');
+                    console.log('Connected to server');
                 };
 
                 ws.onmessage = (event) => {
@@ -430,21 +480,24 @@
                     if (command === '') return;
                     
                     // Check if it's a JSON object with timer
-                    let timerValue = null;
                     try {
                         const jsonData = JSON.parse(command);
                         if (jsonData.timer !== undefined) {
-                            timerValue = parseInt(jsonData.timer);
+                            const timerValue = parseInt(jsonData.timer);
                             if (timerValue > 0) {
-                                startCountdown(timerValue, lastCommand);
+                                if (!isCommandActive)
+                                    startCountdown(timerValue);
+                                timerCountdown.textContent = `${timerValue}s`;
+                            } else {
+                                stopCountdown();
                             }
-                            lastCommand = 'forward'
-                            updateButtonStates();
+                            console.log(`Timer update: ${timerValue}s remaining`);
                             return;
                         }
                     } catch (e) {
                         // Not JSON, continue with regular parsing
                     }
+                    
                     command = command.toLowerCase();
                     
                     // Parse command and timer if present (e.g., "forward:10")
@@ -454,84 +507,58 @@
                     
                     // Update UI based on received command
                     if (action === 'forward' || action === 'backwards') {
-                        const arrow = action === 'forward' ? '→' : '←';
-                        const direction = action === 'forward' ? 'forward' : 'backwards';
-                        if (seconds) {
-                            //addMessage(`${arrow} Engine moving ${direction} for ${seconds}s`);
-                            startCountdown(seconds, action);
-                        } else {
-                            addMessage(`Engine moving ${direction}`);
-                        }
                         lastCommand = action;
-                        currentCommandSpan.textContent = action.toUpperCase();
-                        updateButtonStates();
+                        if (seconds) {
+                            startCountdown(seconds);
+                        }
+                        console.log(`Command: ${action}${seconds ? ' for ' + seconds + 's' : ''}`);
                     } else if (action === 'off') {
-                        addMessage('Stopping engine', 'warning');
                         lastCommand = null;
-                        currentCommandSpan.textContent = 'None';
                         stopCountdown();
-                        updateButtonStates();
                     }
                 };
 
                 ws.onclose = () => {
-                    updateStatus(false);
-                    stopCountdown();
-                    messagesDiv.innerHTML = '';
-                    addMessage('Disconnected from server');
+                    console.log('Disconnected from server');
                     lastCommand = null;
-                    currentCommandSpan.textContent = 'None';
+                    isCommandActive = false;
                 };
 
                 ws.onerror = (error) => {
-                    addMessage('Error: ' + error.message);
+                    console.error('WebSocket error:', error);
                 };
             }
-        });
-
-        function updateButtonStates() {
-            offBtn.disabled = !(lastCommand === 'forward' || lastCommand === 'backwards');
-            leftBtn.disabled = lastCommand === 'forward';
-            rightBtn.disabled = lastCommand === 'backwards';
         }
 
-        function sendPresetMessage(message) {
+        function sendCommand(command, seconds = 5) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 // Prevent new commands if a timer is active (except OFF)
-                if (isCommandActive && message !== 'off') {
-                    addMessage('Command in progress, please wait...', 'warning');
+                if (isCommandActive && command !== 'off') {
+                    console.log('Command in progress, please wait...');
                     return;
                 }
                 
-                if (lastCommand === message) {
+                if (lastCommand === command) {
                     return;
                 }
                 
-                let commandToSend = message;
+                let commandToSend = command;
                 
                 // Append timer for movement commands
-                if (message === 'forward' || message === 'backwards') {
-                    const seconds = parseInt(timerInput.value);
-                    commandToSend = `${message}:${seconds}`;
-                    const arrow = message === 'forward' ? '\u2192' : '\u2190';
-                    const direction = message === 'forward' ? 'forward' : 'backwards';
-                    //addMessage(`${arrow} Engine moving ${direction} for ${seconds}s`);
-                    startCountdown(seconds, message);
-                } else if (message !== 'off') {
-                    addMessage(`Sent: ${message}`);
+                if (command === 'forward' || command === 'backwards') {
+                    commandToSend = `${command}:${seconds}`;
+                    startCountdown(seconds);
+                } else if (command === 'off') {
                     stopCountdown();
                 }
                 
                 ws.send(commandToSend);
-                lastCommand = message;
-                currentCommandSpan.textContent = message.toUpperCase();
-                updateButtonStates();
+                lastCommand = command;
+                console.log(`Sent: ${commandToSend}`);
+            } else {
+                console.log('Not connected to server');
             }
         }
-
-        offBtn.addEventListener('click', () => sendPresetMessage('off'));
-        leftBtn.addEventListener('click', () => sendPresetMessage('forward'));
-        rightBtn.addEventListener('click', () => sendPresetMessage('backwards'));
     </script>
 </body>
 </html>
